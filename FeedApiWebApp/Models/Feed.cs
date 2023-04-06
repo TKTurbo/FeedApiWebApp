@@ -57,8 +57,15 @@ public class Feed
 	    var task = fetch();
 	    task.Wait();
 
-	    // Serialize the JSON data as an instance and return it
-	    return JsonSerializer.Deserialize<FeedViewModel>(task.Result);
+	    // Serialize the JSON data as an instance and return it. If the result could not be parsed, an error has occured.
+	    try
+	    {
+		    return JsonSerializer.Deserialize<FeedViewModel>(task.Result);
+	    }
+	    catch (Exception e)
+	    {
+		    throw new Exception("Could not deserialize the data. The API key might be expired.");
+	    }
     }
 
     // Fetch the data from the API, and return it as a task string
