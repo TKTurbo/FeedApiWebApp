@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Feed";
+}
+@using System.Globalization
+@model FeedApiWebApp.Models.FeedViewModel
+
+<div class="text-center">
+    <h1 class="display-4">Feed van mijn testaccount</h1>
+    <a href="https://www.instagram.com/testmastester/">https://www.instagram.com/testmastester/</a>
+    <!-- We place all posts in a flex container so we can easily wrap the overflowing posts. -->
+    <div class="d-flex flex-wrap p-2">
+        <!-- Loop over all posts -->
+        @foreach (var post in @Model.data.Select((data, index) => (data, index)))
+        {
+            // A post can be an image, a video or an album. We use a card layout for all of them. We add m-3 for a little spacing between.
+            <div class="card m-3" style="width: 18rem;">
+                @if (@post.data.media_type == "IMAGE")
+                {
+                    <img class="card-img-top" width="200px" src="@post.data.media_url"/>
+                }
+                else if (@post.data.media_type == "VIDEO")
+                {
+                    <video class="card-img-top" width="200px" controls>
+                        <source src="@post.data.media_url" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                // Carousels have nested children. We use a bootstrap carousel to display them.
+                else if (@post.data.media_type == "CAROUSEL_ALBUM")
+                {
+                    <div id="@("carousel-" + @post.index)" class="carousel" data-interval="false">
+                        <div class="carousel-inner">
+                            @foreach (var child in @post.data.children.data.Select((data, index) => (data, index)))
+                            {
+                                <div class="carousel-item @(@child.index == 0 ? "active" : "")">
+                                    @if (@child.data.media_type == "IMAGE")
+                                    {
+                                        <img class="card-img-top" width="200px" src="@child.data.media_url"/>
+                                    }
+                                    else if (@child.data.media_type == "VIDEO")
+                                    {
+                                        <video class="card-img-top" width="200px" controls>
+                                            <source src="@child.data.media_url" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="mt-1">
+                            <a class="left btn btn-primary carousel-control" href="@("#carousel-" + @post.index)" data-slide="prev">Prev</a>
+                            <a class="right btn btn-primary carousel-control" href="@("#carousel-" + @post.index)" data-slide="next">Next</a>
+                        </div>
+                    </div>
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title"></h5>
+                    <p class="card-text">Caption: @post.data.caption</p>
+                    <p class="card-text">Geplaatst om: @post.data.timestamp</p>
+                    <p class="card-text"><a href="@post.data.permalink">@post.data.permalink</a></p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script language="JavaScript" type="text/javascript">
+    $(document).ready(function(){
+      //   $('#carousel').carousel({
+      //       interval: false,
+      //   });
+      //  
+      //   $(".left").click(function(){
+      //     $("#carousel").carousel("prev");
+      //   });
+      //      
+      //      
+      // $(".right").click(function(){
+      //   $("#carousel").carousel("next");
+      // });
+    });
+</script>
